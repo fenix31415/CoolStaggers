@@ -1,6 +1,9 @@
+#include <spdlog/sinks/basic_file_sink.h>
+#define FDEBUG
+
 extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a_skse, SKSE::PluginInfo* a_info)
 {
-#ifndef NDEBUG
+#ifndef FDEBUG
 	auto sink = std::make_shared<spdlog::sinks::msvc_sink_mt>();
 #else
 	auto path = logger::log_directory();
@@ -15,11 +18,11 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a
 
 	auto log = std::make_shared<spdlog::logger>("global log"s, std::move(sink));
 
-#ifndef NDEBUG
+#ifndef FDEBUG
 	log->set_level(spdlog::level::trace);
 #else
 	log->set_level(spdlog::level::info);
-	log->flush_on(spdlog::level::warn);
+	log->flush_on(spdlog::level::info);
 #endif
 
 	spdlog::set_default_logger(std::move(log));
@@ -45,11 +48,18 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a
 	return true;
 }
 
+#include "Utils.h"
+
 extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_skse)
 {
-	logger::info("loaded");
-
 	SKSE::Init(a_skse);
+	SKSE::AllocTrampoline(1 << 10);
+
+	REL::Relocation<std::uintptr_t> StaggerHook{ REL::ID(42839) };
+	auto& trampoline = SKSE::GetTrampoline();
+	trampoline.write_call<5>(StaggerHook.address() + 0x81, Formulas::get_weapon_stagger);
+
+	logger::info("loaded");
 
 	return true;
 }

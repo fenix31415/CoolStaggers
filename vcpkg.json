@@ -1,12 +1,13 @@
 {
-  "name": "exampleproject",
+  "name": "coolstaggers",
   "version-string": "1.0.0",
-  "description": "An example project built using CommonLibSSE",
+  "description": "Here should be description",
   "homepage": "https://github.com/Ryan-rsm-McKenzie/ExamplePlugin-CommonLibSSE",
   "license": "MIT",
   "dependencies": [
     "boost-atomic",
     "boost-stl-interfaces",
+    "xbyak",
     "span-lite",
     "spdlog"
   ]

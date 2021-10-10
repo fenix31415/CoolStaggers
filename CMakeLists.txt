@@ -31,7 +31,7 @@ set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>" CACHE STR
 # ---- Project ----
 
 project(
-	ExampleProject
+	CoolStaggers
 	VERSION 1.0.0
 	LANGUAGES CXX
 )
@@ -79,7 +79,7 @@ set(Boost_USE_STATIC_LIBS ON)
 
 # ---- Dependencies ----
 
-add_subdirectory("extern/CommonLibSSE" CommonLibSSE)
+add_subdirectory($ENV{CommonLibSSE} $ENV{CommonLibSSE}/build)
 
 find_package(spdlog REQUIRED CONFIG)
 
@@ -87,6 +87,8 @@ find_package(spdlog REQUIRED CONFIG)
 
 set(SOURCES
 	src/main.cpp
+	src/Utils.h
+	src/Utils.cpp
 	src/PCH.h
 )
 

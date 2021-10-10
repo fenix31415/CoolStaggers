@@ -1,1 +1,3 @@
 build/
+*.pex
+skse/plugins/*.dll
