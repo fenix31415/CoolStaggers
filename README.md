@@ -1,4 +1,4 @@
-#### This is a SSE mod [CoolStaggers](https://www.nexusmods.com/skyrimspecialedition/mods/)
+#### This is a SSE mod [CoolStaggers](https://www.nexusmods.com/skyrimspecialedition/mods/64887/)
 
 
 #### Requirements
