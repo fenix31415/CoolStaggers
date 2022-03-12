@@ -17,6 +17,7 @@ set_from_environment(VCPKG_ROOT)
 
 if (DEFINED VCPKG_ROOT)
 	set(CMAKE_TOOLCHAIN_FILE "${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" CACHE STRING "")
+  set(VCPKG_OVERLAY_PORTS "${CMAKE_CURRENT_SOURCE_DIR}/ports" CACHE STRING "")
 	set(VCPKG_TARGET_TRIPLET "x64-windows-static" CACHE STRING "")
 else ()
 	message(
@@ -82,21 +83,33 @@ set(Boost_USE_STATIC_LIBS ON)
 add_subdirectory($ENV{CommonLibSSE} $ENV{CommonLibSSE}/build)
 
 find_package(spdlog REQUIRED CONFIG)
+find_package(AutoTOML REQUIRED CONFIG)
 
 # ---- Add source files ----
 
-set(SOURCES
-	src/main.cpp
-	src/Utils.h
-	src/Utils.cpp
+set(headers
 	src/PCH.h
+  src/Hooks.h
+  src/Utils.h
+  src/Settings.h
+  src/DebugAPI.h
+  src/UselessFenixUtils.h
+)
+
+set(sources
+	src/main.cpp
+  src/Hooks.cpp
+  src/Utils.cpp
+  src/DebugAPI.cpp
+  src/UselessFenixUtils.cpp
 )
 
 source_group(
 	TREE
 		${CMAKE_CURRENT_SOURCE_DIR}
 	FILES
-		${SOURCES}
+		${headers}
+		${sources}
 )
 
 source_group(
@@ -111,7 +124,8 @@ source_group(
 add_library(
 	${PROJECT_NAME}
 	SHARED
-	${SOURCES}
+	${headers}
+	${sources}
 	${CMAKE_CURRENT_BINARY_DIR}/include/Version.h
 	${CMAKE_CURRENT_BINARY_DIR}/version.rc
 	.clang-format
@@ -134,6 +148,7 @@ target_include_directories(
 target_link_libraries(
 	${PROJECT_NAME}
 	PRIVATE
+    AutoTOML::AutoTOML
 		CommonLibSSE::CommonLibSSE
 		spdlog::spdlog
 )

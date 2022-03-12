@@ -1,10 +1,34 @@
 #include "Utils.h"
+#include "DebugAPI.h"
 
 namespace Formulas
 {
-	using Plane = PlaneUtils::Plane;
-	using Line = PlaneUtils::Line;
-	using Parab = PlaneUtils::Parab;
+	struct Line
+	{
+		float a, b;
+		float operator()(float x) const
+		{
+			return x * a + b;
+		}
+	};
+
+	struct Plane
+	{
+		float a, b, c;
+		float operator()(float x, float y) const
+		{
+			return x * a + y * b + c;
+		}
+	};
+
+	struct Parab
+	{
+		float a, b, c;
+		float operator()(float x) const
+		{
+			return x * x * a + x * b + c;
+		}
+	};
 
 	constexpr Plane ARMO_ALPHA = { -90.0f, 90.0f, 360.0f + 90.0f };
 	constexpr Plane WEAP_MIN = { 0.2f, 0.2f, -0.2f };
@@ -58,13 +82,15 @@ namespace Formulas
 		if (ans < min || ans < 0.0f)
 			ans = 0.0f;
 
+#ifdef DEBUG
 		logger::info("victim_mass={}, attacker_mass={}, alpha={}, min={}, max={}, angle={}, ans={}", victim_mass, attacker_mass, alpha, min, max, angle, ans);
+#endif
 
 		return ans;
 	}
 
-	template <typename T>
-	static float get_mass(RE::Actor* a, T* item, const Parab& p)
+	template <typename T, Parab p>
+	static float get_mass(RE::Actor* a, T* item)
 	{
 		auto ans = a->GetActorValue(RE::ActorValue::kMass);
 		if (item)
@@ -76,8 +102,8 @@ namespace Formulas
 
 	float get_weapon_stagger(char* _attacker, char* _victim, RE::TESObjectWEAP* weap, float default_mult)
 	{
-		// yes i can stagger mamonth by spell
-		if (default_mult != 0.0f)
+		// yes i can stagger mamonth by spell (if default_mult = 0)
+		if (default_mult != 0.0f || _attacker == nullptr || _victim == nullptr)
 			return default_mult;
 
 		auto attacker = reinterpret_cast<RE::Actor*>(_attacker - 0xB0);
@@ -91,8 +117,8 @@ namespace Formulas
 
 		angle = angle * 180.0f / PI;
 
-		auto victim_mass = get_mass(victim, victim->GetWornArmor(RE::BGSBipedObjectForm::BipedObjectSlot::kBody), ARMO_WEIGHT);
-		auto attacker_mass = get_mass(attacker, weap, WEAP_WEIGHT);
+		auto victim_mass = get_mass<RE::TESObjectARMO, ARMO_WEIGHT>(victim, victim->GetWornArmor(RE::BGSBipedObjectForm::BipedObjectSlot::kBody));
+		auto attacker_mass = get_mass<RE::TESObjectWEAP, WEAP_WEIGHT>(attacker, weap);
 
 		auto attack = 0.0f;
 		auto attackdata = get_attackData(attacker);
@@ -100,5 +126,28 @@ namespace Formulas
 			attack = attackdata->data.staggerOffset;
 
 		return get_stagger(angle, victim_mass, attacker_mass, attack);
+	}
+}
+
+void draw_heading_player(RE::Actor* a)
+{
+	RE::NiPoint3 startPos;
+	Actor__get_eye_pos(a, &startPos, 1);
+	RE::NiPoint3 endPos = startPos + rotateZ(100.0f, a->data.angle);
+	draw_line<BLU, 0>(startPos, endPos);
+}
+
+void draw_heading(RE::Actor* a)
+{
+	if (!a || !a->Is3DLoaded() || !a->currentProcess || !a->currentProcess->high)
+		return;
+
+	auto player = RE::PlayerCharacter::GetSingleton();
+	auto dist = get_dist2(a, player);
+	if (dist < 100000.0f) {
+		RE::NiPoint3 startPos;
+		Actor__get_eye_pos(a, &startPos, 1);
+		RE::NiPoint3 endPos = startPos + rotateZ(100.0f, a->data.angle);
+		draw_line<BLU, 0>(startPos, endPos);
 	}
 }

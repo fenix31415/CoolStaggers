@@ -5,10 +5,20 @@
   "homepage": "https://github.com/Ryan-rsm-McKenzie/ExamplePlugin-CommonLibSSE",
   "license": "MIT",
   "dependencies": [
+    "autotoml",
     "boost-atomic",
     "boost-stl-interfaces",
     "xbyak",
     "span-lite",
-    "spdlog"
+    "tomlplusplus",
+    "spdlog",
+    "glm"
+  ],
+  "builtin-baseline":"bba8794b82a0f44b8709f294850a2c8e96b61415",
+  "overrides":[
+    {
+      "name":"fmt",
+      "version":"8.0.1"
+    }
   ]
 }

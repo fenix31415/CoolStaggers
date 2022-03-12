@@ -1,0 +1,138 @@
+# old regen -- vanilla calculated regen.
+#   See https://www.nexusmods.com/skyrimspecialedition/articles/346 for reference
+#   Also take look at the mod itself
+
+# walktype = constants for stay, walk and run. 0 for sprint.
+
+# carry mult = a * w + b * cwp + c, where
+#   w -- weight of worn equipment (every piece of armor + shield + weapon)
+#   cwp -- percentage of your carry weight (actually might be >1)
+#   a, b, c -- configurable constants
+
+# hp mult -- 3-sector function (see description), depending on health percentage
+# sp mult -- 3-sector function (see description), depending on stamina percentage
+
+# regen = old regen * walktype * carry mult * hp mult * sp mult
+
+[Regen]
+Player   = true  # Change vanilla formula for player
+NPC      = true  # Change vanilla formula for NPC
+StateNPC = false # Mult formula by this consts for NPCs too
+Stay     = 1.0   # Stay regen mult
+Walk     = 0.8   # Walk regen mult
+Run      = 0.5   # Run regen mult
+
+WeightMult = -0.005 # a
+CarryMult  = -0.5   # b
+CarryBase  = 1.5    # c
+
+HP_Ay = 0.2  #
+HP_Bx = 0.4  # must be > 0
+HP_By = 0.9  #
+HP_Cx = 0.95 # must be 1 > HP_Cx > HP_Bx
+HP_Cy = 1.0  #
+HP_Dy = 1.3  #
+
+SP_Ay = 0.5 #
+SP_Bx = 0.2 # must be > 0
+SP_By = 0.9 #
+SP_Cx = 0.9 # must be 1 > HP_Cx > HP_Bx
+SP_Cy = 1.0 #
+SP_Dy = 1.3 #
+
+
+
+# "with low stamina" = current stamina less (or equal) than calculated cost
+
+# calculated cost = w * a + b * s + c, where
+# w -- weight of appropriate part
+#   weapon for attack
+#   shield (or weapon) for bash
+#   bow for attack and bash
+#   cuirass for jump
+#   attacker's weapon + victim's shield (or weapon) for block
+# s -- current actor stamina
+# a, b, c -- configurable constants
+
+# skill mult = a * skill / 100 + b, where
+#   skill -- your appropriate skill
+#     block for blocking
+#     one-handed for one handed weapons
+#     two-handed for two handed weapons and bow bash
+# a, b -- configurable constants
+
+# calculated cost for action = calculated cost * k * skill mult, where
+# calculated cost -- defined above
+# skill mult -- defined above
+# k -- AttackTypeMult, each for every attack type (normal, power, bash, powerbash)
+
+[Skill]
+SkillMult = -0.35 # a
+SkillBase = 1.1   # b
+
+
+
+[Melee]
+DenyNPC      = true # Deny NPC attacks with low stamina
+DenyPlayer   = true # Deny Player attacks with low stamina
+DamageNPC    = true # Damage NPC stamina every melee attack
+DamagePlayer = true # Damage Player stamina every melee attack
+WeightMult   = 0.8  # a
+StaminaMult  = 0.03 # b
+Base         = 5.0  # c
+
+
+[Bash]
+DenyNPC      = true  # Deny NPC bash with low stamina
+DenyPlayer   = true  # Deny Player bash with low stamina
+DamageNPC    = true  # Damage NPC stamina every bash
+DamagePlayer = true  # Damage Player stamina every bash
+WeightMult   = 0.45  # a
+StaminaMult  = 0.025 # b
+Base         = 3.4   # c
+
+
+[AttackTypeMults]
+PowerAttack = 1.5 # k for power attack
+PowerBash   = 2.0 # k for power bash
+
+
+
+[Bow]                 # bow bash considered regular bash (not shot)
+DenyNPC        = true # Deny NPC bow shot with low stamina
+DenyPlayer     = true # Deny Player bow shot with low stamina
+DamageNPC      = true # Damage NPC stamina every bow shot
+DamagePlayer   = true # Damage Player stamina every bow shot
+WeightMult     = 0.66 # a
+StaminaMult    = 0.05 # b
+Base           = 6.66 # c
+KeepDamage     = true # Damage stamina when the bow has a taut string
+KeepDamageRate = 8.0  # How much damage stamina when the bow has a taut string
+
+
+
+[Block]
+DenyNPC      = true # Deny NPC block with low stamina
+DenyPlayer   = true # Deny Player block with low stamina
+DamageNPC    = true # Damage NPC stamina every successful block
+DamagePlayer = true # Damage Player stamina every successful block
+WeightMult   = 0.2  # a
+StaminaMult  = 0.05 # b
+Base         = 3.0  # c
+
+
+
+[Jumps]
+Player      = true # Deny Player jump with low stamina
+Damage      = true # Damage Player stamina every jump
+WeightMult  = 0.57 # a
+StaminaMult = 0.05 # b
+Base        = -2.3 # c
+
+
+
+[Speed]
+NPC = true # Decrease npc movement speed with low stamina (by half)
+
+
+
